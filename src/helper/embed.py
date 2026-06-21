@@ -1,0 +1,111 @@
+# Generate embeddings and store to disk
+from sentence_transformers import SentenceTransformer
+import numpy as np
+import json
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+def build_work_text(candidate):
+    jobs = []
+
+    for job in candidate["career_history"]:
+        jobs.append(
+            f"Title: {job['title']}\n"
+            f"Industry: {job['industry']}\n"
+            f"Description: {job['description']}\n"
+        )
+    
+    return "\n".join(jobs)
+
+def build_profile_text(candidate):
+    candidate_profile = candidate['profile']
+    skills = ", ".join(
+        skill["name"] for skill in candidate["skills"]
+    )
+
+    return (
+        f"Headline: {candidate_profile['headline']}\n"
+        f"Summary: {candidate_profile['summary']}\n"
+        f"Skills: {skills}\n"
+    )
+
+#Embeddings to be stored to disk
+career_embeddings = []
+profile_embeddings = []
+all_ids = []
+
+#For processing texts in batches
+career_texts = []
+profile_texts = []
+ids = []
+
+count = 1
+
+with open("../data/candidates.jsonl") as f:
+    for line in f:
+        candidate = json.loads(line)
+        career_text = build_work_text(candidate)
+        profile_text = build_profile_text(candidate)
+
+        career_texts.append(career_text)
+        profile_texts.append(profile_text)
+        ids.append(candidate["candidate_id"])
+        
+        if len(career_texts) == 256:
+            print(count)
+            count += 1
+
+            career_embs = model.encode(
+                career_texts,
+                batch_size = 256,
+                normalize_embeddings = True
+            )
+            profile_embs = model.encode(
+                profile_texts,
+                batch_size = 256,
+                normalize_embeddings = True
+            )
+
+            career_embeddings.extend(career_embs)
+            profile_embeddings.extend(profile_embs)
+            all_ids.extend(ids)
+
+            career_texts.clear()
+            profile_texts.clear()
+            ids.clear()
+
+    if career_texts:
+        career_embs = model.encode(
+            career_texts,
+            batch_size = 256,
+            normalize_embeddings = True
+        )
+        profile_embs = model.encode(
+            profile_texts,
+            batch_size = 256,
+            normalize_embeddings = True
+        )
+
+        career_embeddings.extend(career_embs)
+        profile_embeddings.extend(profile_embs)
+        all_ids.extend(ids)
+
+        career_texts.clear()
+        profile_texts.clear()
+        ids.clear()
+
+#Save to disk
+np.save(
+    "../embeddings/career_embeddings.npy",
+    np.array(career_embeddings)
+)
+
+np.save(
+    "../embeddings/profile_embeddings.npy",
+    np.array(profile_embeddings)
+)
+
+np.save(
+    "../embeddings/candidate_ids.npy",
+    np.array(all_ids)
+)
