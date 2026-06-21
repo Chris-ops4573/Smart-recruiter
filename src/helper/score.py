@@ -43,11 +43,13 @@ def score_skill_keyword(candidate):
     preffered_skill = 0
 
     skill_count = 0
+    matched_skills = []
 
     for skill in candidate['skills']:
         skill_name = normalize_skill(skill["name"])
 
         if skill_name in required_skills:
+            matched_skills.append(skill_name)
             skill_count += 1
 
             if skill['proficiency'] == "expert": 
@@ -60,6 +62,7 @@ def score_skill_keyword(candidate):
                 required_skill += 0.3
 
         elif skill_name in preffered_skills:
+            matched_skills.append(skill_name)
             skill_count += 1
 
             if skill['proficiency'] == "expert": 
@@ -74,7 +77,7 @@ def score_skill_keyword(candidate):
     required_skill /= len(required_skills)
     preffered_skill /= len(preffered_skills)
 
-    return 0.8 * required_skill + 0.2 * preffered_skill, skill_count
+    return 0.8 * required_skill + 0.2 * preffered_skill, skill_count, matched_skills
 
 def score_embeddings(candidate_id):
     career_score = np.dot(
