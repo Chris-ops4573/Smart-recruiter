@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+model = SentenceTransformer("BAAI/bge-base-en-v1.5")
 
 #Keyword match scoring
 required_skills = {

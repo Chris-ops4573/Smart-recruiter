@@ -3,6 +3,7 @@ from helper.reasons import relevant_field
 
 import json
 import csv
+import sys
 
 it = 0
 
@@ -43,7 +44,7 @@ with open("../data/candidates.jsonl") as f:
 scores.sort(key = lambda x:x[2], reverse = True)
 top_100 = scores[:100]
 
-with open("../submissions.csv", "w", newline="") as f:
+with open(sys.argv[1], "w", newline="") as f:
     writer = csv.writer(f)
 
     writer.writerow([

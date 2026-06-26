@@ -3,15 +3,18 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import json
 
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+model = SentenceTransformer("BAAI/bge-base-en-v1.5")
 
 def build_work_text(candidate):
     jobs = []
 
     for job in candidate["career_history"]:
         jobs.append(
-            f"Title: {job['title']}\n"
+            f"Role: {job['title']}\n"
+            f"Company: {job['company']}\n"
             f"Industry: {job['industry']}\n"
+
+            f"Responsilities:\n"
             f"Description: {job['description']}\n"
         )
     
@@ -24,7 +27,10 @@ def build_profile_text(candidate):
     )
 
     return (
+        f"Current Role: {candidate_profile['current_title']}\n"
         f"Headline: {candidate_profile['headline']}\n"
+
+        f"Professional summary:\n"
         f"Summary: {candidate_profile['summary']}\n"
         f"Skills: {skills}\n"
     )
@@ -32,12 +38,10 @@ def build_profile_text(candidate):
 #Embeddings to be stored to disk
 career_embeddings = []
 profile_embeddings = []
-all_ids = []
 
 #For processing texts in batches
 career_texts = []
 profile_texts = []
-ids = []
 
 count = 1
 
@@ -49,7 +53,6 @@ with open("../data/candidates.jsonl") as f:
 
         career_texts.append(career_text)
         profile_texts.append(profile_text)
-        ids.append(candidate["candidate_id"])
         
         if len(career_texts) == 256:
             print(count)
@@ -68,11 +71,9 @@ with open("../data/candidates.jsonl") as f:
 
             career_embeddings.extend(career_embs)
             profile_embeddings.extend(profile_embs)
-            all_ids.extend(ids)
 
             career_texts.clear()
             profile_texts.clear()
-            ids.clear()
 
     if career_texts:
         career_embs = model.encode(
@@ -88,24 +89,17 @@ with open("../data/candidates.jsonl") as f:
 
         career_embeddings.extend(career_embs)
         profile_embeddings.extend(profile_embs)
-        all_ids.extend(ids)
 
         career_texts.clear()
         profile_texts.clear()
-        ids.clear()
 
 #Save to disk
 np.save(
-    "../embeddings/career_embeddings.npy",
+    "../embeddings/bge_career_embeddings.npy",
     np.array(career_embeddings)
 )
 
 np.save(
-    "../embeddings/profile_embeddings.npy",
+    "../embeddings/bge_profile_embeddings.npy",
     np.array(profile_embeddings)
-)
-
-np.save(
-    "../embeddings/candidate_ids.npy",
-    np.array(all_ids)
 )

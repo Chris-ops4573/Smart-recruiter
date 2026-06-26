@@ -6,8 +6,8 @@ import numpy
 from datetime import datetime
 import numpy as np
 
-profile_emb = np.load("../embeddings/profile_embeddings.npy")
-career_emb = np.load("../embeddings/career_embeddings.npy")
+profile_emb = np.load("../embeddings/bge_profile_embeddings.npy")
+career_emb = np.load("../embeddings/bge_career_embeddings.npy")
 
 #Helpers
 def date_to_day(date):
