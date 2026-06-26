@@ -1,0 +1,62 @@
+team_name: "V64"
+
+primary_contact:
+name: "Christine"
+email: "christine.r@iiitb.ac.in"
+phone: "8618695248"
+
+team_members:
+
+  name: "Christine"
+  email: "christine.r@iiitb.ac.in"
+  role: "Student"
+
+github_repo: "https://github.com/Chris-ops4573/Smart-recruiter"
+
+sandbox_link: "YOUR_SANDBOX_LINK"
+
+reproduce_command: "python pipeline.py"
+
+compute:
+platform: "Ubuntu Linux Laptop"
+cpu_cores: 8
+ram_gb: 16
+python_version: "3.12"
+os: "Ubuntu 25.10"
+uses_gpu_for_inference: false
+has_network_during_ranking: false
+pre_computation_required: true
+pre_computation_time_minutes: 240
+
+ai_tools_used:
+ "ChatGPT"
+
+ai_usage_summary: 
+  Used ChatGPT for architecture discussion, debugging assistance,
+  code review, scoring strategy design, and reasoning generation ideas.
+  All ranking logic, feature engineering, embedding generation,
+  scoring functions, and evaluation pipeline implementation were
+  developed and validated manually.
+
+methodology_summary: 
+  Hybrid candidate ranking system combining semantic retrieval,
+  explicit skill matching, behavioral signals, and profile
+  consistency checks. Candidate career history and profile
+  information are embedded separately using SentenceTransformers
+  (all-MiniLM-L6-v2). Candidate relevance is measured against
+  JD-specific career and profile embeddings. Skill matching uses
+  normalized keyword matching with proficiency weighting for
+  required and preferred skills. Behavioral scoring incorporates
+  recruiter response rate, open-to-work status, activity recency,
+  and notice period. Additional consistency checks penalize
+  profiles whose experience history does not align with claimed
+  experience or whose skills are unsupported by work history.
+  Final ranking combines career similarity, behavioral signals,
+  profile similarity, skill relevance, and honeypot penalties.
+
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true

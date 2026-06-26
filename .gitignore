@@ -1,6 +1,9 @@
 .venv/
 data/
 embeddings/
-submission/
+
+#For debugging
+src/scan.py
+submission/submissions.csv
 
 __pycache__/
