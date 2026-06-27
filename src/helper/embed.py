@@ -1,7 +1,9 @@
 # Generate embeddings and store to disk
 from sentence_transformers import SentenceTransformer
+
 import numpy as np
 import json
+import os
 
 model = SentenceTransformer("BAAI/bge-base-en-v1.5")
 
@@ -45,19 +47,40 @@ profile_texts = []
 
 count = 1
 
-with open("../data/candidates.jsonl") as f:
-    for line in f:
-        candidate = json.loads(line)
-        career_text = build_work_text(candidate)
-        profile_text = build_profile_text(candidate)
+def embed(file_path, embedding_path):
+    global count
+    
+    with open(file_path) as f:
+        for line in f:
+            candidate = json.loads(line)
+            career_text = build_work_text(candidate)
+            profile_text = build_profile_text(candidate)
 
-        career_texts.append(career_text)
-        profile_texts.append(profile_text)
-        
-        if len(career_texts) == 256:
-            print(count)
-            count += 1
+            career_texts.append(career_text)
+            profile_texts.append(profile_text)
+            
+            if len(career_texts) == 256:
+                print(count)
+                count += 1
 
+                career_embs = model.encode(
+                    career_texts,
+                    batch_size = 256,
+                    normalize_embeddings = True
+                )
+                profile_embs = model.encode(
+                    profile_texts,
+                    batch_size = 256,
+                    normalize_embeddings = True
+                )
+
+                career_embeddings.extend(career_embs)
+                profile_embeddings.extend(profile_embs)
+
+                career_texts.clear()
+                profile_texts.clear()
+
+        if career_texts:
             career_embs = model.encode(
                 career_texts,
                 batch_size = 256,
@@ -75,31 +98,13 @@ with open("../data/candidates.jsonl") as f:
             career_texts.clear()
             profile_texts.clear()
 
-    if career_texts:
-        career_embs = model.encode(
-            career_texts,
-            batch_size = 256,
-            normalize_embeddings = True
-        )
-        profile_embs = model.encode(
-            profile_texts,
-            batch_size = 256,
-            normalize_embeddings = True
-        )
+    #Save to disk
+    np.save(
+        os.path.join(embedding_path, "career.npy"),
+        np.array(career_embeddings)
+    )
 
-        career_embeddings.extend(career_embs)
-        profile_embeddings.extend(profile_embs)
-
-        career_texts.clear()
-        profile_texts.clear()
-
-#Save to disk
-np.save(
-    "../embeddings/bge_career_embeddings.npy",
-    np.array(career_embeddings)
-)
-
-np.save(
-    "../embeddings/bge_profile_embeddings.npy",
-    np.array(profile_embeddings)
-)
+    np.save(
+        os.path.join(embedding_path, "profile.npy"),
+        np.array(profile_embeddings)
+    )
