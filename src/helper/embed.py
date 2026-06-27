@@ -1,5 +1,6 @@
 # Generate embeddings and store to disk
 from sentence_transformers import SentenceTransformer
+from .profile_set import jd_career_text, jd_profile_text, reason_templates
 
 import numpy as np
 import json
@@ -37,19 +38,17 @@ def build_profile_text(candidate):
         f"Skills: {skills}\n"
     )
 
-#Embeddings to be stored to disk
-career_embeddings = []
-profile_embeddings = []
-
-#For processing texts in batches
-career_texts = []
-profile_texts = []
-
-count = 1
-
 def embed(file_path, embedding_path):
-    global count
-    
+    #Embeddings to be stored to disk
+    career_embeddings = []
+    profile_embeddings = []
+
+    #For processing texts in batches
+    career_texts = []
+    profile_texts = []
+
+    count = 1
+
     with open(file_path) as f:
         for line in f:
             candidate = json.loads(line)
@@ -107,4 +106,35 @@ def embed(file_path, embedding_path):
     np.save(
         os.path.join(embedding_path, "profile.npy"),
         np.array(profile_embeddings)
+    )
+
+    # JD embeddings
+    jd_career_embedding = model.encode(
+        jd_career_text,
+        normalize_embeddings=True
+    )
+
+    jd_profile_embedding = model.encode(
+        jd_profile_text,
+        normalize_embeddings=True
+    )
+
+    np.save(
+        os.path.join(embedding_path, "jd_career.npy"),
+        jd_career_embedding
+    )
+
+    np.save(
+        os.path.join(embedding_path, "jd_profile.npy"),
+        jd_profile_embedding
+    )
+
+    reason_embeddings = model.encode(
+        list(reason_templates.values()),
+        normalize_embeddings=True
+    )
+
+    np.save(
+        os.path.join(embedding_path, "reason.npy"),
+        reason_embeddings
     )

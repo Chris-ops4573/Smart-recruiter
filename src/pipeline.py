@@ -1,19 +1,27 @@
 from helper.score import score_embeddings, score_skill_keyword, score_behavior, honeypot_penalty
 from helper.reasons import relevant_field
 
+import numpy as np
 import json
 import csv
 import sys
+import os
 
-def rank_candidates(candidate_count, candidate_file, file_path):
+def rank_candidates(candidate_count, candidate_file, file_path, embeddings_dir):
     it = 0
+    career_emb = np.load(os.path.join(embeddings_dir, "career.npy"))
+    profile_emb = np.load(os.path.join(embeddings_dir, "profile.npy"))
+
+    career_jd_emb = np.load(os.path.join(embeddings_dir, "jd_career.npy"))
+    profile_jd_emb = np.load(os.path.join(embeddings_dir, "jd_profile.npy"))
+    reason_emb = np.load(os.path.join(embeddings_dir, "reason.npy"))
 
     scores = []
     with open(candidate_file) as f:
         for line in f:
             candidate = json.loads(line)
 
-            career_score, profile_score = score_embeddings(it)
+            career_score, profile_score = score_embeddings(career_emb[it], profile_emb[it], career_jd_emb, profile_jd_emb)
             skill_score, skill_count, matched_skills = score_skill_keyword(candidate)
             behaviour_score = score_behavior(candidate)
 
@@ -61,9 +69,12 @@ def rank_candidates(candidate_count, candidate_file, file_path):
 
         rank = 1
         for candidate_id, candidate, score, skill_count, matched_skills, index, career_score, _, _, behaviour_score, _ in top:
-            reasoning = relevant_field(candidate, index, skill_count, matched_skills, career_score, behaviour_score)
+            reasoning = relevant_field(candidate, index, skill_count, matched_skills, career_score, behaviour_score, career_emb[index], reason_emb)
 
             writer.writerow([
                 candidate_id, rank, score, reasoning
             ])
             rank += 1
+
+if __name__ == "__main__":
+    rank_candidates(100, "data/candidates.jsonl", "submission.csv", "embeddings")

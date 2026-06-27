@@ -1,13 +1,10 @@
-from helper.profile_set import required_skills, preffered_skills, jd_career_embedding, jd_profile_embedding
+from helper.profile_set import required_skills, preffered_skills
 
 import json
 import re
 import numpy
 from datetime import datetime
 import numpy as np
-
-profile_emb = np.load("../embeddings/bge_profile_embeddings.npy")
-career_emb = np.load("../embeddings/bge_career_embeddings.npy")
 
 #Helpers
 def date_to_day(date):
@@ -79,15 +76,15 @@ def score_skill_keyword(candidate):
 
     return 0.8 * required_skill + 0.2 * preffered_skill, skill_count, matched_skills
 
-def score_embeddings(candidate_id):
+def score_embeddings(career_emb, profile_emb, jd_career_embedding, jd_profile_embedding):
     career_score = np.dot(
         jd_career_embedding,
-        career_emb[candidate_id]
+        career_emb
     )
 
     profile_score = np.dot(
         jd_profile_embedding,
-        profile_emb[candidate_id]
+        profile_emb
     )
 
     return career_score, profile_score

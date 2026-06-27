@@ -1,8 +1,5 @@
-from helper.profile_set import reason_embeddings, reason_names
+from helper.profile_set import reason_names
 import numpy as np
-
-career_emb = np.load("../embeddings/bge_career_embeddings.npy")
-
 
 def _top_assessed_skill(candidate):
     """Pick the highest-scoring verified skill assessment, if any."""
@@ -60,7 +57,9 @@ def relevant_field(
     skill_count,
     matched_skills,
     career_score,
-    behavior_score
+    behavior_score,
+    career_emb,
+    reason_embeddings
 ):
     years = candidate["profile"]["years_of_experience"]
 
@@ -68,7 +67,7 @@ def relevant_field(
     if candidate["career_history"]:
         title = candidate["career_history"][0]["title"]
 
-    sims = np.dot(reason_embeddings, career_emb[index])
+    sims = np.dot(reason_embeddings, career_emb)
     field = reason_names[np.argmax(sims)]
 
     strengths = []

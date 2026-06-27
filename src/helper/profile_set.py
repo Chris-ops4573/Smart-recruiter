@@ -1,6 +1,3 @@
-from sentence_transformers import SentenceTransformer
-model = SentenceTransformer("BAAI/bge-base-en-v1.5")
-
 #Keyword match scoring
 required_skills = {
     # Core retrieval / ranking
@@ -86,11 +83,6 @@ Large scale search systems.
 Python engineering.
 """
 
-jd_career_embedding = model.encode(
-    jd_career_text,
-    normalize_embeddings = True
-)
-
 jd_profile_text = """
 Senior AI Engineer.
 LLMs.
@@ -119,11 +111,6 @@ Recommendation Systems.
 Retrieval Systems.
 AI Engineering.
 """
-
-jd_profile_embedding = model.encode(
-    jd_profile_text,
-    normalize_embeddings = True
-)
 
 #Role description for generating reasons
 reason_templates = {
@@ -179,8 +166,3 @@ reason_templates = {
 }
 
 reason_names = list(reason_templates.keys())
-
-reason_embeddings = model.encode(
-    list(reason_templates.values()),
-    normalize_embeddings=True
-)

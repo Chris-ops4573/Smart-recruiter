@@ -30,24 +30,27 @@ output_name = st.text_input(
 )
 
 if uploaded:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
-        f.write(uploaded.getvalue())
-        path = f.name
+    try:
+        with tempfile.NamedTemporaryFile(delete=True, suffix=".json") as f:
+            f.write(uploaded.getvalue())
+            path = f.name
+        
+            if st.button("Run"):
+                with st.spinner("Generating embeddings..."):
+                    if(not os.path.exists("embeddings_temp/career.npy") or not os.path.exists("embeddings_temp/profile.npy")):
+                        embed(path, embeddings_dir)
+
+                with st.spinner("Ranking candidates..."):
+                    rank_candidates(num_candidates, path, output_name, embeddings_dir)
+
+                with open(output_name, "rb") as f:
+                    st.download_button(
+                        "Download Results",
+                        data=f,
+                        file_name=output_name,
+                        mime="text/csv"
+                    )
     
-        if st.button("Run"):
-            with st.spinner("Generating embeddings..."):
-                if(not os.path.exists("embeddings_temp/career.npy") or not os.path.exists("embeddings_temp/profile.npy")):
-                    embed(path, embeddings_dir)
-
-            with st.spinner("Ranking candidates..."):
-                rank_candidates(num_candidates, path, output_name)
-
-            with open(output_name, "rb") as f:
-                st.download_button(
-                    "Download Results",
-                    data=f,
-                    file_name=output_name,
-                    mime="text/csv"
-                )
-
-                shutil.rmtree("embeddings_temp")
+    finally:
+        if os.path.exists(embeddings_dir):
+            shutil.rmtree(embeddings_dir)
