@@ -141,4 +141,8 @@ def embed(file_path, embedding_path):
     )
 
 if __name__ == "__main__":
+    if(len(sys.argv) != 3):
+        print("Usage: python srcembed.py data_file embedding_dir")
+        exit()
+
     embed(sys.argv[1], sys.argv[2])

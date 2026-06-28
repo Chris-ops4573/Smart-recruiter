@@ -78,7 +78,7 @@ def rank_candidates(candidate_count, candidate_file, file_path, embeddings_dir):
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Usage: python syc/pipeline.py total_rank data_file ranked_file embedding_dir")
+        print("Usage: python pipeline.py total_rank data_file ranked_file embedding_dir")
         exit()
 
     rank_candidates(int(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4])
