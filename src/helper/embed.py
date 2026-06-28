@@ -5,6 +5,7 @@ from .profile_set import jd_career_text, jd_profile_text, reason_templates
 import numpy as np
 import json
 import os
+import sys
 
 model = SentenceTransformer("BAAI/bge-base-en-v1.5")
 
@@ -138,3 +139,6 @@ def embed(file_path, embedding_path):
         os.path.join(embedding_path, "reason.npy"),
         reason_embeddings
     )
+
+if __name__ == "__main__":
+    embed(sys.argv[1], sys.argv[2])
