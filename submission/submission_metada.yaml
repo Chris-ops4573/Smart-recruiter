@@ -13,7 +13,7 @@ team_members:
 
 github_repo: "https://github.com/Chris-ops4573/Smart-recruiter"
 
-sandbox_link: "YOUR_SANDBOX_LINK"
+sandbox_link: "https://hub.docker.com/repository/docker/christiner4573/smart-recruiter"
 
 reproduce_command: "python pipeline.py"
 

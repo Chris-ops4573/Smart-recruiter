@@ -77,4 +77,8 @@ def rank_candidates(candidate_count, candidate_file, file_path, embeddings_dir):
             rank += 1
 
 if __name__ == "__main__":
-    rank_candidates(100, "data/candidates.jsonl", "submission.csv", "embeddings")
+    if len(sys.argv) != 5:
+        print("Usage: python syc/pipeline.py total_rank data_file ranked_file embedding_dir")
+        exit()
+
+    rank_candidates(int(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4])

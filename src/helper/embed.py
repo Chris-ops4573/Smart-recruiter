@@ -1,6 +1,6 @@
 # Generate embeddings and store to disk
 from sentence_transformers import SentenceTransformer
-from .profile_set import jd_career_text, jd_profile_text, reason_templates
+from profile_set import jd_career_text, jd_profile_text, reason_templates
 
 import numpy as np
 import json

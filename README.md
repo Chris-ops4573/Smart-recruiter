@@ -80,7 +80,7 @@ Smart recruiter/                  # project root
 └── requirements.txt
 ```
 
-> Note: `embeddings/` is the layout used by the **CLI** flow (`python src/pipeline.py ...`). The **Streamlit app** generates its own embeddings into a temporary `embeddings_temp/` directory per run and deletes it afterward — it does not read from or write to `embeddings/`.
+> Note: `embeddings/` is the directory you pass as the last argument to the **CLI** flow (`python src/pipeline.py ... ../embeddings`). The **Streamlit app** generates its own embeddings into a temporary `embeddings_temp/` directory per run and deletes it afterward — it does not read from or write to `embeddings/`.
 
 ---
 
@@ -155,16 +155,17 @@ From the project root (`Smart recruiter/`):
 ```bash
 # Step 1 — generate embeddings for every candidate (run once, or whenever candidates.jsonl changes)
 # args: <input candidates.jsonl> <output embeddings directory>
-python src/helper/embed.py ../data/candidates.jsonl ../embeddings
+python src/helper/embed.py /data/candidates.jsonl embeddings
 
-# Step 2 — score, rank, and explain candidates (output path is a required CLI argument, must end in .csv)
-python src/pipeline.py ../submission/bge_submissions.csv
+# Step 2 — score, rank, and explain candidates
+# args: <number of candidates to rank> <input candidates.jsonl> <output .csv path> <embeddings directory>
+python src/pipeline.py 100 data/candidates.jsonl submission/bge_submissions.csv embeddings
 
 # Step 3 (optional) — convert the CSV to .xlsx if you need a workbook deliverable
-python src/convert.py ../submission/bge_submissions.csv ../submission/bge_submissions.xlsx
+python src/convert.py submission/bge_submissions.csv submission/bge_submissions.xlsx
 ```
 
-`src/pipeline.py` writes the **CSV** file passed as `sys.argv[1]` with columns:
+`src/pipeline.py` takes four positional CLI arguments, in this order: `<candidate_count> <candidate_file> <output_csv_path> <embeddings_dir>`. It writes the **CSV** file at `output_csv_path` with columns:
 
 | column | description |
 |---|---|
@@ -172,6 +173,8 @@ python src/convert.py ../submission/bge_submissions.csv ../submission/bge_submis
 | `rank` | 1–N, 1 = best match |
 | `score` | final blended score (see formula below) |
 | `reasoning` | one auto-generated sentence explaining the match |
+
+If `candidate_count` is larger than the number of candidates in the input file, the script prints an error and exits without writing output.
 
 `src/convert.py` is a thin helper (`pandas.read_csv` → `pandas.to_excel`) that takes an input CSV path and output XLSX path as its two CLI arguments — it does no scoring, it's purely a format conversion.
 
